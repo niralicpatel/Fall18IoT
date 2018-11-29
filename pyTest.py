@@ -3,6 +3,10 @@ import BlynkLib
 import time
 import os
 import RPi.GPIO as GPIO
+import cv2
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(17, GPIO.OUT, initial = GPIO.LOW)
 GPIO.setup(27, GPIO.OUT, initial = GPIO.LOW)
@@ -18,12 +22,22 @@ retValue = 0
 retFlag = 1
 c = 1
 
+# Width and Height of preview window  
+w=640
+h=480
+
 clayAway = False
 found = False
 matchers = []
 
 # Initialize Blynk
 blynk = BlynkLib.Blynk(BLYNK_AUTH)
+
+#Intialize Camera
+camera = PiCamera()
+camera.resolution = (w,h)
+camera.framerate=32
+rawCapture = PiRGBArray(camera, size=(w,h))
 
 # Toggle, Clay's Away
 @blynk.VIRTUAL_WRITE(6)
@@ -96,12 +110,23 @@ def my_user_task():
     global c
     print 'loop',c
     c = c+1
-	
+
 	if GPIO.input(22) == '1':
 		#DO FACIAL RECOGNITION
 		#SEND PICTURE TO USER
-		
-    
+		for frame in camera.capture_continuous(rawCapture, format='bgr',use_video_port=True):
+			frame = frame.array
+			gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+			faces = cv2.CascadeClassifier('face.xml')
+			face = faces.detectMultiScale(gray,1.3,5)
+			for(x,y,w,h) in face:
+				cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+				cv2.imwrite('result.jpg',frame)
+			cv2.imshow('image',frame)
+			key = cv2.waitKey(1) & 0xFF
+			rawCapture.truncate(0)
+			if key == ord('q'):
+				break
     if unlockDoor == '1':
         unlock_door()
 

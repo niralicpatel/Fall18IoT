@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(17, GPIO.OUT, initial = GPIO.LOW)
 GPIO.setup(27, GPIO.OUT, initial = GPIO.LOW)
+GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 BLYNK_AUTH = '5bd3512dcaee4898870541225fadaffc'
 clayMac = '78:4f:43:15:aa:c3'
 lockGPIO = 27
@@ -95,6 +96,11 @@ def my_user_task():
     global c
     print 'loop',c
     c = c+1
+	
+	if GPIO.input(22) == '1':
+		#DO FACIAL RECOGNITION
+		#SEND PICTURE TO USER
+		
     
     if unlockDoor == '1':
         unlock_door()

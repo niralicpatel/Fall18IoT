@@ -20,7 +20,6 @@ c = 1
 clayAway = False
 found = False
 matchers = []
-#matchers = ['78:4f:43:15:aa:c3']
 
 # Initialize Blynk
 blynk = BlynkLib.Blynk(BLYNK_AUTH)
@@ -57,8 +56,6 @@ def my_mac_finder(c):
     print('running arp-scan')
     retvalue = os.popen("sudo arp-scan --interface=wlan0 --localnet").readlines()
     retFlag = 1
-    #print retvalue
-    #matchers = global matchers
     matching = [s for s in retvalue if any(xs in s for xs in matchers)]
     if len(matching):
         my_location_unlocker()
@@ -96,61 +93,19 @@ def my_user_task():
     global lockDoor
     global retFlag
     global c
-    #print('lets start')
-    #print(lockDoor)
-    #print(lockDoor == '1')
-    #unlockDoorTemp = unlockDoor
     print 'loop',c
     c = c+1
     
     if unlockDoor == '1':
         unlock_door()
-        #GPIO.output(unlockGPIO, GPIO.HIGH)
-        #time.sleep(0.1)
-        #GPIO.output(unlockGPIO, GPIO.LOW)
-        #time.sleep(1)
-        #print('uD')
-        #print(unlockDoor)
-        #unlockDoor = 0
-        #print(unlockDoor)
 
     if lockDoor == '1':
         lock_door()
-        #GPIO.output(lockGPIO, GPIO.HIGH)
-        #time.sleep(0.1)
-        #GPIO.output(lockGPIO, GPIO.LOW)
-        #time.sleep(1)
-        #print('lD')
-        #print(lockDoor)
-        #lockDoor = 0
-        #print(lockDoor)
 
     #Global retvalue
     if retFlag == 1:
         retFlag = 0
         thread.start_new_thread(my_mac_finder, (c,))
-        
-    #global retvalue = os.popen("sudo arp-scan --interface=wlan0 --localnet").readlines()
-    #global retFlag = 
-    #matching = [s for s in retvalue if any(xs in s for xs in matchers)]
-
-    #len(matching) will be 0 if none found
-    #if len(matching):
-    #    print('from the loop')
-    #    GPIO.output(unlockGPIO, GPIO.HIGH)
-    #    time.sleep(0.1)
-    #    GPIO.output(unlockGPIO, GPIO.LOW)
-    #    time.sleep(1)
-
-    #    time.sleep(unlockTime)
-    #    GPIO.output(lockGPIO, GPIO.HIGH)
-    #    time.sleep(0.1)
-    #    GPIO.output(lockGPIO, GPIO.LOW)
-    #    time.sleep(1)
-    #    matchers.remove(matchers.index(clayMac))
-        
-
-
 
 blynk.set_user_task(my_user_task, 1000)
 
